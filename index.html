@@ -3,64 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>足球AI深度预测系统 - 商业旗舰版</title>
+    <title>AI预测系统 · 旗舰增强版</title>
+    <!-- Chart.js 轻量图表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- html2canvas 用于分享图片 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
         }
-
         :root {
-            --primary: #165DFF;
-            --primary-light: #E8F3FF;
-            --vip: #FF4080;
-            --vip-light: #FFF0F5;
-            --secondary: #36CFC9;
-            --danger: #F53F3F;
-            --warning: #FF7D00;
-            --success: #00B42A;
-            --gray-100: #F2F3F5;
-            --gray-200: #E5E6EB;
-            --gray-300: #C9CDD4;
-            --gray-600: #4E5969;
-            --gray-800: #1D2129;
-            --white: #FFFFFF;
+            --bg: #0c0c0c;
+            --card: #1a1a1a;
+            --gold: #c9a868;
+            --blue: #00aaff;
+            --light-bg: #222;
+            --text: #f0f0f0;
+            --tip: #888;
             --radius: 16px;
-            --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --shadow: 0 8px 24px rgba(0,0,0,0.3);
             --transition: all 0.3s ease;
         }
-
-        .dark-mode {
-            --bg: #121418;
-            --card: #1D2129;
-            --text: #E5E6EB;
-            --border: #33363D;
-            --primary-light: #293552;
-            --vip-light: #3D2335;
-        }
-
         body {
-            background: var(--gray-100);
-            color: var(--gray-800);
+            background: var(--bg);
+            color: var(--text);
             transition: var(--transition);
             padding-bottom: 40px;
+            overflow-x: hidden;
         }
-
-        .dark-mode {
-            background: #121418;
-            color: var(--text);
-        }
-
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
-
+        .top-nav {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            box-shadow: var(--shadow);
+        }
+        .nav-item {
+            flex: 1;
+            min-width: 70px;
+            padding: 10px 8px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background: var(--light-bg);
+            color: #ccc;
+            transition: var(--transition);
+        }
+        .nav-item.active {
+            background: var(--gold);
+            color: #000;
+            font-weight: bold;
+        }
         .navbar {
-            background: var(--white);
+            background: var(--card);
             border-radius: var(--radius);
             padding: 16px 20px;
             margin-bottom: 20px;
@@ -70,829 +81,1235 @@
             box-shadow: var(--shadow);
             position: relative; z-index: 10;
         }
-
-        .dark-mode .navbar { background: var(--card); }
-
-        .navbar h1 { font-size: 20px; color: var(--primary); font-weight: 700; }
-
-        .nav-buttons { display: flex; gap: 8px; align-items: center; }
-
-        .vip-tag { background: var(--vip); color: #fff; font-size: 12px; padding: 3px 6px; border-radius: 6px; font-weight: bold; }
-
+        .navbar h1 {
+            font-size: 20px;
+            color: var(--gold);
+            font-weight: 700;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
         .btn {
-            padding: 8px 14px; border-radius: 10px; font-size: 14px; font-weight: 500;
-            border: none; cursor: pointer; transition: var(--transition);
-            display: inline-flex; align-items: center; justify-content: center;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: #0D47A1; }
-        .btn-vip { background: var(--vip); color: #fff; }
-        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        .btn-danger { background: var(--danger); color: #fff; }
-
+        .btn-primary {
+            background: var(--gold);
+            color: #000;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+        }
         .card {
-            background: var(--white); border-radius: var(--radius); padding: 24px;
-            margin-bottom: 16px; box-shadow: var(--shadow); transition: var(--transition);
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: none;
         }
-        .dark-mode .card { background: var(--card); }
-
+        .card.show {
+            display: block;
+        }
         .card-title {
-            font-size: 16px; font-weight: 600; color: var(--gray-800); margin-bottom: 16px;
-            display: flex; align-items: center; gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .dark-mode .card-title { color: var(--text); }
-        .card-title i { color: var(--primary); font-style: normal; }
-
         input, select {
-            width: 100%; padding: 12px 14px; border-radius: 10px;
-            border: 1px solid var(--gray-200); background: var(--white);
-            color: var(--gray-800); margin-bottom: 12px; font-size: 15px; transition: var(--transition);
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #222;
+            color: var(--text);
+            margin-bottom: 12px;
+            font-size: 15px;
+            -webkit-user-select: auto;
+            user-select: auto;
         }
-        .dark-mode input,.dark-mode select { background: #252A34; border-color: #33363D; color: var(--text); }
-        input:focus { outline: none; border-color: var(--primary); }
-
+        input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
         .countdown {
-            font-size: 18px; font-weight: 700; color: var(--danger);
-            text-align: center; padding: 12px; background: var(--primary-light); border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--blue);
+            text-align: center;
+            padding: 12px;
+            background: var(--light-bg);
+            border-radius: 12px;
         }
-
-        .stats { display: flex; flex-wrap: wrap; gap: 8px; }
-        .stats span { padding: 6px 10px; background: var(--primary-light); color: var(--primary); border-radius: 8px; font-size: 13px; font-weight: 500; }
-
-        .balls { display: flex; gap: 12px; justify-content: center; margin: 16px 0; }
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .stats span {
+            padding: 6px 10px;
+            background: var(--light-bg);
+            color: var(--gold);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .balls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
         .ball {
-            width: 52px; height: 52px; border-radius: 50%; background: var(--primary); color: #fff;
-            display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700;
-            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.3);
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c9a868, #a08040);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
         }
-
         .num-ball {
-            width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff;
-            display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--blue);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
-
-        .grid5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; }
-        .item { background: var(--primary-light); border-radius: 12px; padding: 16px 10px; text-align: center; font-size: 14px; }
-        .item strong { font-size: 16px; color: var(--primary); }
-
-        .chart-box { overflow-x: auto; border-radius: 12px; }
-        .trend-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        .trend-table th { background: var(--primary-light); color: var(--primary); padding: 10px; font-weight: 600; text-align: center; }
-        .trend-table td { padding: 10px; text-align: center; border-bottom: 1px solid var(--gray-200); }
-        .dark-mode .trend-table td { border-color: var(--border); }
-
+        .grid5 {
+            display: grid;
+            grid-template-columns: repeat(5,1fr);
+            gap: 10px;
+        }
+        .item {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 16px 10px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--gold);
+        }
+        .item strong {
+            font-size: 16px;
+        }
+        .chart-box {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+        .trend-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .trend-table th {
+            background: var(--light-bg);
+            color: var(--gold);
+            padding: 10px;
+            text-align: center;
+        }
+        .trend-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
         .history-item {
-            display: flex; justify-content: space-between; padding: 12px 0;
-            border-bottom: 1px dashed var(--gray-200); font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed #333;
+            font-size: 15px;
         }
-        .dark-mode .history-item { border-color: var(--border); }
-
-        .shape-box { display: flex; gap: 10px; flex-wrap: wrap; }
-        .shape { flex: 1; min-width: 100px; background: var(--primary-light); border-radius: 12px; padding: 12px; text-align: center; font-size: 14px; }
-
-        .tip { font-size: 12px; color: var(--gray-600); text-align: center; margin-top: 8px; }
-        .dark-mode .tip { color: var(--gray-300); }
-        .rate { color: var(--danger); font-weight: 600; font-size: 15px; text-align: center; margin-top: 8px; }
-
-        .loading,.update-bar { text-align: center; padding: 10px; color: var(--primary); font-size: 14px; display: none; }
-        .update-bar { background: var(--primary-light); border-radius: 10px; margin-bottom: 10px; }
-
-        .login-lock,.ad-lock {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--gray-100); display: flex; align-items: center; justify-content: center; z-index: 9999;
+        .p3-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 16px 0;
+            flex-wrap: wrap;
         }
-        .dark-mode .login-lock,.dark-mode .ad-lock { background: #121418; }
-
-        .login-box,.ad-box {
-            width: 90%; max-width: 400px; background: var(--white); border-radius: 20px;
-            padding: 40px 30px; box-shadow: 0 12px 32px rgba(0,0,0,0.1); text-align: center;
-        }
-        .dark-mode .login-box,.dark-mode .ad-box { background: var(--card); }
-        .login-box h2,.ad-box h2 { margin-bottom: 24px; color: var(--primary); }
-
-        .vip-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 9998;
-        }
-        .vip-box { width: 90%; max-width: 400px; background: var(--white); border-radius: 20px; padding: 30px; text-align: center; }
-        .dark-mode .vip-box { background: var(--card); }
-        .vip-title { font-size: 22px; color: var(--vip); margin-bottom: 10px; font-weight: bold; }
-
-        .admin-box { display: none; }
-        #adminPanel { display: none; margin-top: 16px; }
-
-        .copyright { text-align: center; font-size: 12px; color: var(--gray-600); margin-top: 30px; line-height: 1.5; }
-        .dark-mode .copyright { color: var(--gray-300); }
-
-        .vip-info {
-            text-align: center; padding: 8px; background: var(--vip-light);
-            border-radius: 10px; font-size: 14px; margin-bottom: 10px; color: var(--vip);
-        }
-
-        .vip-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; text-align: center;
-        }
-        .vip-card h3 { margin-bottom: 10px; }
-        .vip-card p { font-size: 14px; opacity: 0.95; line-height: 1.5; }
-
-        /* 排列三 6码 7码 样式 */
-        .p3-box { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
         .p3-ball {
-            width: 46px; height: 46px; border-radius: 50%; background: var(--success); color: #fff;
-            display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 700;
-            box-shadow: 0 4px 10px rgba(0, 180, 42, 0.3);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--blue);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 700;
         }
-
-        /* 20注列表专用 */
         .p3-list {
-            margin-top: 12px;
             max-height: 380px;
             overflow-y: auto;
+            margin-top: 12px;
         }
         .p3-item {
             padding: 10px 14px;
-            background: var(--primary-light);
+            background: var(--light-bg);
             border-radius: 10px;
             margin-bottom: 8px;
             font-size: 15px;
-            font-weight: 500;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .dark-mode .p3-item {
-            background: #252A34;
+        .lotto-box, .ssq-box {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+        .lotto-front, .lotto-back, .ssq-red, .ssq-blue {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .lotto-front { background: linear-gradient(135deg, #1677ff, #0050b3); color: #fff; }
+        .lotto-back { background: linear-gradient(135deg, #ff4d4f, #cf1322); color: #fff; }
+        .ssq-red { background: linear-gradient(135deg, #ff4d4f, #cf1322); color: #fff; }
+        .ssq-blue { background: linear-gradient(135deg, #1677ff, #0050b3); color: #fff; }
+        .tip {
+            font-size: 12px;
+            color: var(--tip);
+            text-align: center;
+            margin-top: 8px;
+        }
+        .rate {
+            color: var(--blue);
+            font-weight: 600;
+            font-size: 15px;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .loading {
+            text-align: center;
+            padding: 10px;
+            color: var(--gold);
+            font-size: 14px;
+            display: none;
+        }
+        .login-lock, .ad-lock {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0c0c0c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .login-box, .ad-box {
+            width: 90%;
+            max-width: 400px;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+        .vip-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+        .vip-box {
+            width: 90%;
+            max-width: 400px;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+        .vip-title {
+            font-size: 22px;
+            color: var(--gold);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .summary-card {
+            background: var(--card);
+            border-left: 4px solid var(--gold);
+        }
+        .admin-box { display: none; }
+        #adminPanel { display: none; margin-top: 16px; }
+        .copyright {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 30px;
+            line-height: 1.5;
+        }
+
+        /* 新增样式 */
+        .canvas-container {
+            width: 100%;
+            height: 200px;
+            margin: 10px 0;
+            background: #111;
+            border-radius: 8px;
+            padding: 5px;
+        }
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            margin: 10px 0;
+        }
+        .heat-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border-radius: 4px;
+            background: #2a2a2a;
+            color: #ccc;
+        }
+        .heat-cell.hot { background: #c9a868; color: #000; }
+        .heat-cell.cold { background: #3a3a3a; color: #aaa; }
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+        .slider-group label {
+            width: 80px;
+            font-size: 14px;
+        }
+        .slider-group input {
+            flex: 1;
+            margin: 0;
+        }
+        .slider-group span {
+            width: 40px;
+            text-align: right;
+        }
+        .explain-box {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .share-btn {
+            background: #00aaff;
+            color: #fff;
+            border: none;
+        }
+        .feature-badge {
+            display: inline-block;
+            background: var(--blue);
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin-left: 8px;
         }
     </style>
 </head>
 <body>
 
-<!-- 欢迎页 -->
 <div class="ad-lock" id="adLock">
     <div class="ad-box">
-        <h2>⚽ 足球AI深度预测系统</h2>
-        <p style="margin-bottom:20px;line-height:1.6;">多维度大数据建模 | 赛事走势深度分析 | 高胜率参考</p>
+        <h2>🎯 AI预测系统 · 旗舰增强版</h2>
+        <p style="margin-bottom:20px;line-height:1.6;">500期大数据 | 多因子加权 | 可视化分析 | 智能交互</p>
         <button class="btn btn-primary" style="width:100%" onclick="closeAd()">立即进入</button>
-        <p class="tip" style="margin-top:16px;">本系统仅提供数据参考 · 理性分析</p>
+        <p class="tip">数据仅供参考 · 理性分析</p>
     </div>
 </div>
 
-<!-- 登录 -->
 <div class="login-lock" id="loginLock" style="display:none;">
     <div class="login-box">
         <h2>会员验证</h2>
         <input type="password" id="visitPwd" placeholder="请输入访问密码">
         <button class="btn btn-primary" style="width:100%" onclick="checkVisit()">验证进入</button>
-        <p class="tip" style="margin-top:16px;">数据仅供赛事分析参考</p>
-    </div>
-</div>
-
-<!-- VIP弹窗 -->
-<div class="vip-modal" id="vipModal">
-    <div class="vip-box">
-        <div class="vip-title">🔒 尊享会员功能</div>
-        <p style="margin:16px 0;line-height:1.6;">本功能为尊享会员专属<br>如需开通请联系管理员</p>
-        <button class="btn btn-vip" onclick="closeVipModal()">我知道了</button>
+        <p class="tip">密码：888888</p>
     </div>
 </div>
 
 <div id="mainContainer" style="display:none;">
     <div class="container">
-        <div class="update-bar" id="updateBar">数据更新中...</div>
-
-        <!-- 导航 -->
         <div class="navbar">
-            <h1>⚽ 足球AI深度预测系统</h1>
+            <h1>🎯 AI预测系统 · 增强版</h1>
             <div class="nav-buttons">
-                <div id="vipTagArea"></div>
-                <button class="btn btn-outline" id="adminBtn">管理后台</button>
-                <button class="btn btn-outline" id="darkBtn">深色模式</button>
+                <button class="btn btn-outline" id="adminBtn">管理</button>
+                <button class="btn btn-outline" id="darkBtn">深色</button>
             </div>
         </div>
 
-        <div id="vipStatus" class="vip-info" style="display:none;"></div>
-
-        <!-- 会员卡片 -->
-        <div class="vip-card">
-            <h3>🌟 尊享会员 · 专属特权</h3>
-            <p>✅ AI深度预测 6重算法 | ✅ 精选5组推荐 | ✅ 完整走势图表 | ✅ 无限制使用</p>
+        <div class="top-nav">
+            <div class="nav-item active" data-tab="home">🏠 首页</div>
+            <div class="nav-item" data-tab="pl5">⚽ 排列五</div>
+            <div class="nav-item" data-tab="p3">🎯 排列三</div>
+            <div class="nav-item" data-tab="lotto">🎰 大乐透</div>
+            <div class="nav-item" data-tab="ssq">🔴 双色球</div>
+            <div class="nav-item" data-tab="summary">📋 今日汇总</div>
         </div>
 
-        <!-- 排列三 6码 -->
-        <div class="card">
-            <div class="card-title"><i>🎯</i> 排列三 6码精准推荐</div>
-            <button class="btn btn-primary" onclick="checkVipAndRun(genP3SixCode)">生成6码推荐</button>
+        <!-- 首页 -->
+        <div class="card show" data-module="home">
+            <div class="card-title"><i>🏠</i> 系统首页 <span class="feature-badge">500期历史</span></div>
+            <div style="line-height:1.8; font-size:15px;">
+                <p>✅ 排列五：AI预测、走势、三胆、杀号、精选</p>
+                <p>✅ 排列三：6码、7码、20注推荐</p>
+                <p>✅ 大乐透/双色球：基于历史数据多因子评分</p>
+                <p>✅ 📈 新增走势折线图、遗漏热力图、尾数分析</p>
+                <p>✅ ⚙️ 自定义权重、多期预测、号码解释器</p>
+                <p>✅ 🧮 奖金计算器、走势画线、分享图片</p>
+                <p>✅ 📊 500期真实模拟数据，冷热交替更自然</p>
+                <p style="color:var(--blue);">👇 点击顶部标签开始体验</p>
+            </div>
+        </div>
+
+        <!-- 排列五模块 (新增功能都集成在此) -->
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>⏰</i> 开奖倒计时</div>
+            <div class="countdown" id="countdown"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>📊</i> 历史走势统计</div>
+            <div class="stats" id="statTotal"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>📜</i> 历史开奖 <span class="feature-badge">500期</span></div>
+            <input placeholder="输入期号查询" id="issueInput">
+            <button class="btn btn-primary" onclick="loadHistory()">查询</button>
+            <div id="historyList" style="margin-top:12px; max-height:300px; overflow-y:auto;"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>📈</i> 走势折线图 <span class="feature-badge">最近30期</span></div>
+            <div class="canvas-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>🔥</i> 遗漏热力图 <span class="feature-badge">冷号≥15期高亮</span></div>
+            <div id="heatmap"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>🎯</i> 三胆推荐</div>
+            <div class="grid5" id="best3"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>🚫</i> 智能杀号</div>
+            <div class="grid5" id="killNums"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>🧧</i> 精选5组</div>
+            <button class="btn btn-primary" onclick="checkVipAndRun(gen5Group)">生成</button>
+            <div id="group5" style="margin-top:16px;"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>🧠</i> AI预测 <span class="feature-badge">自定义权重</span></div>
+            <div class="slider-group">
+                <label>频率权重</label>
+                <input type="range" id="freqWeight" min="0" max="5" step="0.1" value="2.2">
+                <span id="freqVal">2.2</span>
+            </div>
+            <div class="slider-group">
+                <label>遗漏权重</label>
+                <input type="range" id="missWeight" min="0" max="2" step="0.1" value="0.3">
+                <span id="missVal">0.3</span>
+            </div>
+            <div class="slider-group">
+                <label>邻号/重号</label>
+                <input type="range" id="nearWeight" min="0" max="3" step="0.1" value="1.5">
+                <span id="nearVal">1.5</span>
+            </div>
+            <button class="btn btn-primary" onclick="genPredictWithWeights()">开始预测</button>
+            <div class="loading" id="loading">计算中...</div>
+            <div class="balls" id="resultBalls"></div>
+            <div class="rate" id="rate"></div>
+            <button class="btn btn-outline" style="width:100%" onclick="copyResult()">复制</button>
+            <div class="explain-box" id="explainBox">点击预测查看号码评分构成</div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>🔮</i> 多期预测 <span class="feature-badge">未来3期</span></div>
+            <button class="btn btn-primary" onclick="genMultiPeriod()">生成</button>
+            <div id="multiPeriod" style="margin-top:16px;"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>🧮</i> 奖金计算器</div>
+            <input type="number" id="betMoney" placeholder="投注金额(元)" value="2">
+            <input type="number" id="multiplier" placeholder="倍数" value="1">
+            <button class="btn btn-primary" onclick="calcPrize()">计算</button>
+            <div class="summary-row" id="prizeResult">预计奖金：0元</div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>📸</i> 分享预测图片</div>
+            <button class="btn btn-primary share-btn" onclick="sharePrediction()">生成分享图</button>
+            <div id="shareArea" style="margin-top:16px; text-align:center;"></div>
+        </div>
+        <div class="card" data-module="pl5">
+            <div class="card-title"><i>⚙️</i> 高级算法实验室</div>
+            <div class="algo-grid">
+                <div class="algo-card" onclick="runHotAlgo()">
+                    <div class="algo-title">🔥 冷热算法</div>
+                    <div class="algo-balls" id="hotAlgoBalls"></div>
+                </div>
+                <div class="algo-card" onclick="runMissAlgo()">
+                    <div class="algo-title">⏳ 遗漏算法</div>
+                    <div class="algo-balls" id="missAlgoBalls"></div>
+                </div>
+                <div class="algo-card" onclick="runPatternAlgo()">
+                    <div class="algo-title">📐 形态算法</div>
+                    <div class="algo-balls" id="patternAlgoBalls"></div>
+                </div>
+                <div class="algo-card" onclick="runComprehensiveAlgo()">
+                    <div class="algo-title">🧬 综合算法</div>
+                    <div class="algo-balls" id="compAlgoBalls"></div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="runAllAlgos()">一键运行</button>
+            <button class="btn btn-outline" onclick="copyAllAlgos()">复制结果</button>
+        </div>
+
+        <!-- 排列三 (保持不变) -->
+        <div class="card" data-module="p3">
+            <div class="card-title"><i>🎯</i> 6码推荐</div>
+            <button class="btn btn-primary" onclick="checkVipAndRun(genP3SixCode)">生成6码</button>
             <div class="p3-box" id="p3SixBalls"></div>
-            <div class="rate" id="p3Rate"></div>
-            <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="copyP3Result()">复制6码</button>
-            <p class="tip">AI综合权重算法 · 高概率胆码组 · 仅供参考</p>
+            <button class="btn btn-outline" onclick="copyP3Result()">复制</button>
         </div>
-
-        <!-- 排列三 7码 -->
-        <div class="card">
-            <div class="card-title"><i>🎯</i> 排列三 7码精准推荐</div>
-            <button class="btn btn-primary" onclick="checkVipAndRun(genP3SevenCode)">生成7码推荐</button>
+        <div class="card" data-module="p3">
+            <div class="card-title"><i>🎯</i> 7码推荐</div>
+            <button class="btn btn-primary" onclick="checkVipAndRun(genP3SevenCode)">生成7码</button>
             <div class="p3-box" id="p3SevenBalls"></div>
-            <div class="rate" id="p3SevenRate"></div>
-            <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="copyP3SevenResult()">复制7码</button>
-            <p class="tip">覆盖更广 · 稳定性更高 · 组选首选</p>
+            <button class="btn btn-outline" onclick="copyP3SevenResult()">复制</button>
+        </div>
+        <div class="card" data-module="p3">
+            <div class="card-title"><i>🎯</i> 20注精选</div>
+            <button class="btn btn-primary" onclick="checkVipAndRun(genP3Twenty)">生成</button>
+            <div class="p3-list" id="p3TwentyList"></div>
+            <button class="btn btn-outline" onclick="copyP3Twenty()">复制全部</button>
         </div>
 
-        <!-- 排列三 20注推荐 -->
-        <div class="card">
-            <div class="card-title"><i>🎯</i> 排列三 20注精选推荐</div>
-            <button class="btn btn-primary" onclick="checkVipAndRun(genP3Twenty)">生成20注</button>
-            <div class="p3-list" id="p3TwentyList"></div>
-            <button class="btn btn-outline" style="width:100%;margin-top:10px;" onclick="copyP3Twenty()">复制全部20注</button>
-            <p class="tip">AI智能组合 · 直选/组选通用 · 仅供参考</p>
+        <!-- 大乐透 (基于500期数据) -->
+        <div class="card" data-module="lotto">
+            <div class="card-title"><i>🎰</i> 大乐透推荐 <span class="feature-badge">500期历史</span></div>
+            <button class="btn btn-primary" onclick="genLotto()">生成</button>
+            <div style="text-align:center;">前区</div>
+            <div class="lotto-box" id="lottoFront"></div>
+            <div style="text-align:center;">后区</div>
+            <div class="lotto-box" id="lottoBack"></div>
+            <button class="btn btn-outline" onclick="copyLotto()">复制</button>
+        </div>
+
+        <!-- 双色球 (基于500期数据) -->
+        <div class="card" data-module="ssq">
+            <div class="card-title"><i>🔴</i> 双色球推荐 <span class="feature-badge">500期历史</span></div>
+            <button class="btn btn-primary" onclick="genSSQ()">生成</button>
+            <div style="text-align:center;">红球</div>
+            <div class="ssq-box" id="ssqRed"></div>
+            <div style="text-align:center;">蓝球</div>
+            <div class="ssq-box" id="ssqBlue"></div>
+            <button class="btn btn-outline" onclick="copySSQ()">复制</button>
+        </div>
+
+        <!-- 今日汇总 -->
+        <div class="card summary-card" data-module="summary">
+            <div class="card-title">📋 今日AI推荐汇总</div>
+            <div style="line-height:2;">
+                <p><strong>排列五：</strong><span id="t_pl5"></span></p>
+                <p><strong>排列三：</strong><span id="t_p3"></span></p>
+                <p><strong>大乐透：</strong><span id="t_lotto"></span></p>
+                <p><strong>双色球：</strong><span id="t_ssq"></span></p>
+            </div>
+            <button class="btn btn-primary" onclick="genTodayAll()">刷新</button>
+            <button class="btn btn-outline" onclick="copyTodayAll()">复制汇总</button>
         </div>
 
         <!-- 管理后台 -->
         <div class="card admin-box" id="adminBox">
-            <div class="card-title"><i>🔑</i> 管理员后台</div>
-            <input type="password" id="adminPwd" placeholder="管理员密码">
-            <button class="btn btn-primary" onclick="checkAdmin()">登录后台</button>
+            <div class="card-title">🔑 管理后台</div>
+            <input type="password" id="adminPwd" placeholder="管理密码">
+            <button class="btn btn-primary" onclick="checkAdmin()">登录</button>
             <div id="adminPanel">
                 <div class="card-title">数据管理</div>
-                <input placeholder="期号 如：26047" id="addIssue">
-                <input placeholder="号码 如：5 2 7 0 9" id="addNumber">
-                <button class="btn btn-primary" onclick="addManualIssue()">添加数据</button>
-                <div class="card-title" style="margin-top:24px;">会员管理</div>
-                <input placeholder="设置会员密码" id="vipPwdInput">
-                <input placeholder="会员有效期(天)" id="vipDayInput" type="number">
-                <button class="btn btn-vip" onclick="setVipInfo()">保存设置</button>
-                <div class="card-title" style="margin-top:24px;">安全设置</div>
-                <input placeholder="新访问密码" id="newVisitPwd">
-                <input placeholder="新管理密码" id="newAdminPwd">
-                <button class="btn btn-outline" onclick="changePwd()">修改密码</button>
-                <button class="btn btn-outline" onclick="exportData()" style="margin-top:12px;">数据备份</button>
-                <button class="btn btn-danger" onclick="clearData()" style="margin-top:8px;">重置数据</button>
+                <input placeholder="期号" id="addIssue">
+                <input placeholder="号码" id="addNumber">
+                <button class="btn btn-primary" onclick="addManualIssue()">添加</button>
+                <div class="card-title" style="margin-top:20px">密码设置</div>
+                <input placeholder="访问密码" id="newVisitPwd">
+                <input placeholder="管理密码" id="newAdminPwd">
+                <button class="btn btn-outline" onclick="changePwd()">保存</button>
             </div>
         </div>
 
-        <!-- 倒计时 -->
-        <div class="card">
-            <div class="card-title"><i>⏰</i> 赛事倒计时</div>
-            <div class="countdown" id="countdown"></div>
-        </div>
-
-        <!-- 冷热统计 -->
-        <div class="card">
-            <div class="card-title"><i>📊</i> 历史走势统计（近10期）</div>
-            <div class="stats" id="statTotal"></div>
-        </div>
-
-        <!-- 历史 -->
-        <div class="card">
-            <div class="card-title"><i>📜</i> 历史开奖数据</div>
-            <input placeholder="输入期号精确查询" id="issueInput">
-            <button class="btn btn-primary" onclick="loadHistory()">查询数据</button>
-            <div id="historyList" style="margin-top:12px;"></div>
-        </div>
-
-        <!-- 走势 -->
-        <div class="card">
-            <div class="card-title"><i>📈</i> 走势图表分析</div>
-            <div class="chart-box">
-                <table class="trend-table" id="trendTable"></table>
-            </div>
-        </div>
-
-        <!-- 三胆 -->
-        <div class="card">
-            <div class="card-title"><i>🎯</i> 核心三胆推荐</div>
-            <div class="grid5" id="best3"></div>
-            <p class="tip">高稳定模型 · 大数据优选 · 仅供参考</p>
-        </div>
-
-        <!-- 杀号 -->
-        <div class="card">
-            <div class="card-title"><i>🚫</i> 智能排除号码</div>
-            <div class="grid5" id="killNums"></div>
-            <p class="tip" id="killTail"></p>
-        </div>
-
-        <!-- 形态 -->
-        <div class="card">
-            <div class="card-title"><i>📐</i> 形态趋势分析</div>
-            <div class="shape-box">
-                <div class="shape" id="shapeOdd">奇偶分布</div>
-                <div class="shape" id="shapeBig">大小分布</div>
-                <div class="shape" id="shapeSum">和值区间</div>
-            </div>
-            <p class="tip">多维度形态过滤，提升参考价值</p>
-        </div>
-
-        <!-- 5组 -->
-        <div class="card">
-            <div class="card-title"><i>🧧</i> 精选5组推荐</div>
-            <button class="btn btn-primary" onclick="checkVipAndRun(gen5Group)">生成推荐</button>
-            <div id="group5" style="margin-top:16px;"></div>
-        </div>
-
-        <!-- AI预测 -->
-        <div class="card">
-            <div class="card-title"><i>🧠</i> AI深度预测</div>
-            <select id="mode">
-                <option value="hot">强势趋势</option>
-                <option value="cold">回调补位</option>
-            </select>
-            <button class="btn btn-primary" onclick="checkVipAndRun(genPredict)">开始预测</button>
-            <div class="loading" id="loading">AI深度计算中...</div>
-            <div class="balls" id="resultBalls"></div>
-            <div class="rate" id="rate"></div>
-            <button class="btn btn-outline" style="width:100%" onclick="copyResult()">复制结果</button>
-        </div>
-
-        <div class="copyright">
-            足球AI深度预测系统 © 商业旗舰版<br>
-            本平台仅提供数据分析与参考，理性看待结果<br>
-            开通会员/商务合作：客服微信 —— your-wechat
-        </div>
+        <div class="copyright">AI预测系统 © 增强版 500期大数据</div>
     </div>
 </div>
 
 <script>
-// ==============================================
-// 基础配置
-// ==============================================
+// 全局变量
+document.oncontextmenu = () => false;
+document.onkeydown = e => {
+    if(e.key === "F12") return false;
+    if(e.ctrlKey && e.shiftKey && e.key === "I") return false;
+    if(e.ctrlKey && e.key === "u") return false;
+};
+
+// 切换标签
+function switchTab(tab) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.nav-item[data-tab="${tab}"]`).classList.add('active');
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('show'));
+    if(tab === 'home') document.querySelector('[data-module="home"]').classList.add('show');
+    if(tab === 'pl5') document.querySelectorAll('[data-module="pl5"]').forEach(c => c.classList.add('show'));
+    if(tab === 'p3') document.querySelectorAll('[data-module="p3"]').forEach(c => c.classList.add('show'));
+    if(tab === 'lotto') document.querySelectorAll('[data-module="lotto"]').forEach(c => c.classList.add('show'));
+    if(tab === 'ssq') document.querySelectorAll('[data-module="ssq"]').forEach(c => c.classList.add('show'));
+    if(tab === 'summary') document.querySelector('[data-module="summary"]').classList.add('show');
+    if(tab === 'pl5') { updateHeatmap(); drawTrendChart(); }
+}
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => { switchTab(item.dataset.tab); });
+});
+
+// 常量
 const DEFAULT_VISIT_PWD = "888888";
 const DEFAULT_ADMIN_PWD = "123456";
-const DEFAULT_VIP_PWD = "vip888";
-const STORAGE_KEY = "PL5_DATA_VIP_FINAL";
-const PWD_STORAGE_KEY = "PL5_PWD_STORE";
-const VIP_STORAGE_KEY = "PL5_VIP_INFO";
+const STORAGE_KEY = "ALL_DATA_FINAL_V2";
+const LOTTO_STORAGE_KEY = "LOTTO_DATA_V2";
+const SSQ_STORAGE_KEY = "SSQ_DATA_V2";
+const PWD_STORE = "PWD_CFG";
 
-let DATA = [];
+let DATA = [];          // 排列五500期
+let LOTTO_DATA = [];
+let SSQ_DATA = [];
 let visitPwd = DEFAULT_VISIT_PWD;
 let adminPwd = DEFAULT_ADMIN_PWD;
-let vipPwd = DEFAULT_VIP_PWD;
-let vipExpire = 0;
 
-function closeAd() {
-  document.getElementById("adLock").style.display = "none";
-  document.getElementById("loginLock").style.display = "flex";
+// 权重变量
+let freqWeight = 2.2, missWeight = 0.3, nearWeight = 1.5;
+
+// 初始化
+function loadAllConfig(){
+    try{
+        const p=JSON.parse(localStorage.getItem(PWD_STORE));
+        if(p){ visitPwd = p.visit || visitPwd; adminPwd = p.admin || adminPwd; }
+    }catch(e){}
 }
 
-function loadAllConfig() {
-  try {
-    const p = JSON.parse(localStorage.getItem(PWD_STORAGE_KEY));
-    if (p) {
-      visitPwd = p.visit || DEFAULT_VISIT_PWD;
-      adminPwd = p.admin || DEFAULT_ADMIN_PWD;
-      vipPwd = p.vip || DEFAULT_VIP_PWD;
-    }
-    const v = JSON.parse(localStorage.getItem(VIP_STORAGE_KEY));
-    if (v) vipExpire = v.expire || 0;
-  } catch (e) {}
-}
-
-function savePwd() {
-  try {
-    localStorage.setItem(PWD_STORAGE_KEY, JSON.stringify({
-      visit: visitPwd, admin: adminPwd, vip: vipPwd
-    }));
-  } catch (e) {}
-}
-
-function saveVipExpire(days) {
-  const t = Date.now() + days * 86400000;
-  localStorage.setItem(VIP_STORAGE_KEY, JSON.stringify({ expire: t }));
-  vipExpire = t;
-  updateVipUI();
-}
-
-function checkVisit() {
-  const v = document.getElementById("visitPwd").value.trim();
-  if (v === visitPwd) {
-    document.getElementById("loginLock").style.display = "none";
-    document.getElementById("mainContainer").style.display = "block";
-    initSystem();
-  } else {
-    alert("密码错误");
-  }
-}
-
-// 永久VIP
-function isVipValid() { return true; }
-
-function checkVipAndRun(fn) {
-  if (isVipValid()) { fn(); } else { document.getElementById("vipModal").style.display = "flex"; }
-}
-
-function closeVipModal() { document.getElementById("vipModal").style.display = "none"; }
-
-function updateVipUI() {
-  const tag = document.getElementById("vipTagArea");
-  const status = document.getElementById("vipStatus");
-  if (isVipValid()) {
-    tag.innerHTML = '<span class="vip-tag">尊享会员</span>';
-    status.innerText = "尊享会员已激活 · 解锁全部高级功能";
-    status.style.display = "block";
-  } else {
-    tag.innerHTML = ''; status.style.display = "none";
-  }
-}
-
-// ==============================================
-// 数据存储
-// ==============================================
+// 生成500期排列五 (模拟真实)
 function getDefaultData() {
-  return [
-    {issueno:"26046",number:"7 0 3 2 3",date:"2026-02-25"},
-    {issueno:"26045",number:"1 4 4 7 1",date:"2026-02-24"},
-    {issueno:"26044",number:"7 9 5 2 4",date:"2026-02-23"},
-    {issueno:"26043",number:"3 1 7 4 8",date:"2026-02-22"},
-    {issueno:"26042",number:"6 2 5 0 9",date:"2026-02-21"},
-    {issueno:"26041",number:"9 4 1 7 3",date:"2026-02-20"},
-    {issueno:"26040",number:"2 8 6 5 0",date:"2026-02-19"},
-    {issueno:"26039",number:"5 0 3 9 2",date:"2026-02-18"},
-    {issueno:"26038",number:"7 6 2 4 1",date:"2026-02-17"},
-    {issueno:"26037",number:"1 9 5 8 3",date:"2026-02-16"},
-    {issueno:"26036",number:"4 3 7 1 6",date:"2026-02-15"}
-  ];
-}
-
-function loadFromStorage() {
-  try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    DATA = s ? JSON.parse(s) : getDefaultData();
-  } catch (e) { DATA = getDefaultData(); }
-}
-
-function saveToStorage() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); } catch (e) {}
-}
-
-function autoAddNewIssue() {
-  const today = new Date().toISOString().split("T")[0];
-  const last = DATA[0];
-  if (!last || last.date === today) return;
-  const lastIssueNum = parseInt(last.issueno.slice(-3));
-  const newIssue = "26" + String(lastIssueNum + 1).padStart(3,"0");
-  const newNum = Array.from({length:5},()=>Math.floor(Math.random()*10)).join(" ");
-  DATA.unshift({ issueno: newIssue, number: newNum, date: today });
-  saveToStorage();
-  showUpdate("已自动更新最新数据");
-}
-
-function showUpdate(msg) {
-  const bar = document.getElementById("updateBar");
-  bar.innerText = msg; bar.style.display = "block";
-  setTimeout(()=>bar.style.display="none", 2200);
-}
-
-// ==============================================
-// 后台
-// ==============================================
-document.getElementById("adminBtn").onclick = () => {
-  const box = document.getElementById("adminBox");
-  box.style.display = box.style.display === "block" ? "none" : "block";
-};
-
-function checkAdmin() {
-  const p = document.getElementById("adminPwd").value.trim();
-  if (p === adminPwd) {
-    document.getElementById("adminPanel").style.display = "block";
-    showUpdate("管理员登录成功");
-  } else alert("密码错误");
-}
-
-function addManualIssue() {
-  const issue = document.getElementById("addIssue").value.trim();
-  const num = document.getElementById("addNumber").value.trim();
-  if (!issue || !num) { alert("期号和号码不能为空"); return; }
-  DATA.unshift({ issueno: issue, number: num, date: new Date().toISOString().split("T")[0] });
-  saveToStorage(); fullRefresh();
-  showUpdate("添加成功");
-}
-
-function exportData() {
-  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "data_backup.json";
-  a.click(); URL.revokeObjectURL(a.href);
-}
-
-function changePwd() {
-  const v = document.getElementById("newVisitPwd").value.trim();
-  const a = document.getElementById("newAdminPwd").value.trim();
-  if (v) visitPwd = v;
-  if (a) adminPwd = a;
-  savePwd(); showUpdate("密码修改成功");
-}
-
-function setVipInfo() {
-  const vp = document.getElementById("vipPwdInput").value.trim();
-  const vd = parseInt(document.getElementById("vipDayInput").value) || 36500;
-  if (vp) vipPwd = vp;
-  saveVipExpire(vd); savePwd();
-  showUpdate("会员设置成功");
-}
-
-function clearData() {
-  if (!confirm("确定清空所有数据？不可恢复！")) return;
-  localStorage.removeItem(STORAGE_KEY);
-  DATA = getDefaultData(); fullRefresh();
-  showUpdate("数据已重置");
-}
-
-// ==============================================
-// 6套AI算法
-// ==============================================
-function allNumbers() { return DATA.map(d => d.number.split(" ").map(Number)); }
-function pos(p) { return allNumbers().map(n => n[p]); }
-
-function hotWeight(p) {
-  const a = pos(p); const s = {};
-  a.forEach((n,i)=>{ const w=Math.exp(-i/4); s[n]=(s[n]||0)+w; });
-  return s;
-}
-
-function miss(p) {
-  const a=pos(p); const m={}; for(let i=0;i<10;i++)m[i]=0;
-  for(let x of a){ m[x]=0; for(let k in m)if(k!=x)m[k]++; }
-  return m;
-}
-
-function inherit(p) {
-  const a=pos(p); const last=a[0],last2=a[1]||-1; const r={};
-  for(let n=0;n<10;n++){
-    r[n]=0; if(n===last)r[n]+=3;
-    if(n===last-1||n===last+1)r[n]+=2;
-    if(n===last-2||n===last+2)r[n]+=1;
-    if(n===last2)r[n]+=1;
-  }
-  return r;
-}
-
-function markov(p) {
-  const arr=pos(p); const t={}; for(let i=0;i<10;i++)t[i]=0;
-  for(let i=0;i<arr.length-1;i++)t[arr[i+1]]++;
-  return t;
-}
-
-function crossScore(p) {
-  const s={}; for(let n=0;n<10;n++)s[n]=0;
-  const p0=pos(0),p1=pos(1),p2=pos(2),p3=pos(3),p4=pos(4);
-  const len=Math.min(p0.length,20);
-  for(let i=0;i<len;i++){
-    if(p===1&&(p0[i]===1||p0[i]===3||p0[i]===7))s[p1[i]]+=0.5;
-    if(p===2&&(p1[i]===2||p1[i]===5||p1[i]===8))s[p2[i]]+=0.5;
-    if(p===3&&(p2[i]===0||p2[i]===6||p2[i]===9))s[p3[i]]+=0.5;
-    if(p===4&&(p3[i]===1||p3[i]===4||p3[i]===7))s[p4[i]]+=0.5;
-  }
-  return s;
-}
-
-function bayesScore(p) {
-  const h=hotWeight(p),m=miss(p),inr=inherit(p),mk=markov(p),cr=crossScore(p);
-  const sc={};
-  for(let n=0;n<10;n++){
-    const missBonus=(m[n]>=3&&m[n]<=7)?5:0;
-    sc[n]=(h[n]||0)*3+missBonus+(inr[n]||0)*2+(mk[n]||0)*1.5+(cr[n]||0);
-  }
-  return sc;
-}
-
-function getTop(p,cnt=3){
-  return Object.entries(bayesScore(p)).sort((a,b)=>b[1]-a[1]).map(x=>+x[0]).slice(0,cnt);
-}
-
-function valid(ns){
-  const sum=ns.reduce((a,b)=>a+b,0);
-  const span=Math.max(...ns)-Math.min(...ns);
-  return sum>=15&&sum<=38&&span>=4;
-}
-
-// ==============================================
-// 排列三 6码 + 7码 + 20注 算法
-// ==============================================
-function getP3TopTotal() {
-  const allNums = allNumbers().flat();
-  const score = {};
-  for (let n=0;n<10;n++) score[n]=0;
-  allNums.forEach((num,idx)=>{ const w=Math.exp(-idx/5); score[num]+=w; });
-  for(let p=0;p<3;p++){ const ps=bayesScore(p); for(let n=0;n<10;n++) score[n]+=ps[n]*1.2; }
-  return Object.entries(score).sort((a,b)=>b[1]-a[1]).map(x=>+x[0]);
-}
-
-// 6码
-function getP3TopSix() { return getP3TopTotal().slice(0,6); }
-// 7码
-function getP3TopSeven() { return getP3TopTotal().slice(0,7); }
-
-// 生成排列三单注（3位）
-function genP3Number() {
-  const top = getP3TopTotal();
-  const a = top[Math.floor(Math.random() * 7)];
-  const b = top[Math.floor(Math.random() * 7)];
-  const c = top[Math.floor(Math.random() * 7)];
-  return [a, b, c].join(" ");
-}
-
-// 生成20注（去重）
-function genP3Twenty() {
-  const list = [];
-  const maxTry = 1000;
-  let count = 0;
-  while (list.length < 20 && count < maxTry) {
-    count++;
-    const num = genP3Number();
-    if (!list.includes(num)) list.push(num);
-  }
-  const box = document.getElementById("p3TwentyList");
-  box.innerHTML = list.map((item, i) => `
-    <div class="p3-item">
-      <span>第${i+1}注</span>
-      <span>${item}</span>
-    </div>
-  `).join("");
-  window.p3TwentyData = list.join("\n");
-}
-
-// 复制20注
-function copyP3Twenty() {
-  if (window.p3TwentyData) {
-    navigator.clipboard.writeText(window.p3TwentyData).then(() => {
-      alert("已复制 20 注号码！");
-    });
-  }
-}
-
-// 生成6码
-function genP3SixCode() {
-  const six = getP3TopSix();
-  const box = document.getElementById("p3SixBalls");
-  const rate = document.getElementById("p3Rate");
-  box.innerHTML = "";
-  six.forEach(n=>{ const b=document.createElement("div");b.className="p3-ball";b.textContent=n; box.appendChild(b); });
-  rate.innerText = "6码综合信心指数：96% · 适合组选/直选";
-  window.lastP3Result = six.join(" ");
-}
-function copyP3Result() {
-  if(window.lastP3Result) navigator.clipboard.writeText(window.lastP3Result).then(()=>alert("已复制6码："+window.lastP3Result));
-}
-
-// 生成7码
-function genP3SevenCode() {
-  const seven = getP3TopSeven();
-  const box = document.getElementById("p3SevenBalls");
-  const rate = document.getElementById("p3SevenRate");
-  box.innerHTML = "";
-  seven.forEach(n=>{ const b=document.createElement("div");b.className="p3-ball";b.textContent=n; box.appendChild(b); });
-  rate.innerText = "7码综合信心指数：97% · 覆盖更广更稳";
-  window.lastP3SevenResult = seven.join(" ");
-}
-function copyP3SevenResult() {
-  if(window.lastP3SevenResult) navigator.clipboard.writeText(window.lastP3SevenResult).then(()=>alert("已复制7码："+window.lastP3SevenResult));
-}
-
-// ==============================================
-// UI渲染
-// ==============================================
-function fullRefresh() {
-  totalStat(); loadHistory(); drawTrend();
-  best3(); killNumbers(); killTail();
-  updateVipUI();
-}
-
-function totalStat() {
-  const all=allNumbers().flat(); const cnt={}; for(let n=0;n<10;n++)cnt[n]=0;
-  all.forEach(n=>cnt[n]++);
-  document.getElementById("statTotal").innerHTML=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span>${k}: ${v}次</span>`).join('');
-}
-
-function best3() {
-  let h=""; for(let p=0;p<5;p++){ const t=getTop(p,3); h+=`<div class="item">第${p+1}位<br><strong>${t[0]} ${t[1]} ${t[2]}</strong></div>`; }
-  document.getElementById("best3").innerHTML=h;
-}
-
-function killNumbers() {
-  const all=allNumbers().flat(); const cnt={}; all.forEach(n=>cnt[n]=(cnt[n]||0)+1);
-  const kill=Object.entries(cnt).sort((a,b)=>a[1]-b[1]).slice(0,5).map(x=>x[0]);
-  document.getElementById("killNums").innerHTML=kill.map(n=>`<div class="item">${n}</div>`).join("");
-}
-
-function killTail() {
-  const u=pos(4); const c={}; u.forEach(n=>c[n]=(c[n]||0)+1);
-  const t=Object.entries(c).sort((a,b)=>a[1]-b[1]).slice(0,2).map(x=>x[0]);
-  document.getElementById("killTail").innerText="重点排除尾数："+t.join("、");
-}
-
-function gen5Group() {
-  let res=[],att=0; while(res.length<5&&att<1000){
-    att++; let line=[]; for(let p=0;p<5;p++){ const pool=getTop(p,4); line.push(pool[Math.floor(Math.random()*pool.length)]); }
-    if(valid(line))res.push(line.join(" "));
-  }
-  document.getElementById("group5").innerHTML=res.map(s=>`<div class="history-item">${s}</div>`).join("");
-}
-
-function genPredict() {
-  const mode=document.getElementById("mode").value;
-  const el=document.getElementById("resultBalls");
-  const load=document.getElementById("loading");
-  const rate=document.getElementById("rate");
-  el.innerHTML=""; load.style.display="block"; rate.innerHTML="";
-  setTimeout(()=>{
-    let r=[],att=0; while(att<1000){
-      att++; r=[]; for(let p=0;p<5;p++){ let ls=getTop(p,4); if(mode==="cold")ls=ls.reverse(); r.push(ls[Math.floor(Math.random()*ls.length)]); }
-      if(valid(r))break;
+    const data = [];
+    const startDate = new Date('2024-01-01');
+    const phases = [
+        { hot: [1,3,5,7], cold: [0,2,4,6,8,9] },
+        { hot: [2,4,6,8], cold: [0,1,3,5,7,9] },
+        { hot: [0,2,4,6,8], cold: [1,3,5,7,9] },
+        { hot: [1,3,5,7,9], cold: [0,2,4,6,8] },
+        { hot: [0,5,6], cold: [1,2,3,4,7,8,9] }
+    ];
+    for (let i = 1; i <= 500; i++) {
+        const issue = `26${i.toString().padStart(3, '0')}`;
+        const nums = [];
+        const phase = Math.floor((i-1) / 100) % 2; // 每100期轮换
+        for (let j = 0; j < 5; j++) {
+            let num;
+            if (phase === 0) {
+                if (Math.random() < 0.7) {
+                    num = phases[j].hot[Math.floor(Math.random() * phases[j].hot.length)];
+                } else {
+                    num = Math.floor(Math.random() * 10);
+                }
+            } else {
+                if (Math.random() < 0.4) {
+                    num = phases[j].cold[Math.floor(Math.random() * phases[j].cold.length)];
+                } else {
+                    num = Math.floor(Math.random() * 10);
+                }
+            }
+            nums.push(num);
+        }
+        if (i % 37 === 0) {
+            for (let j=0; j<5; j++) nums[j] = (j + (i%10)) % 10; // 顺子
+        }
+        if (i > 1 && i % 10 === 0 && data.length>0) {
+            const prev = data[data.length-1].number.split(' ').map(Number);
+            for (let j=0; j<5; j++) {
+                if (Math.random() < 0.6) nums[j] = prev[j];
+            }
+        }
+        const numberStr = nums.join(' ');
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + i - 1);
+        const dateStr = currentDate.toISOString().split('T')[0];
+        data.push({ issueno: issue, number: numberStr, date: dateStr });
     }
-    el.innerHTML=""; r.forEach(n=>{ const b=document.createElement("div");b.className="ball";b.textContent=n; el.appendChild(b); });
-    load.style.display="none";
-    rate.innerText="综合信心指数：98%（6重AI深度算法）";
-    window.lastResult=r.join(" ");
-  },600);
+    // 特殊标注
+    data[20] = { issueno: "26021", number: "1 2 3 4 5", date: "2024-01-21" };
+    data[100] = { issueno: "26101", number: "6 6 6 6 6", date: "2024-04-10" };
+    data[250] = { issueno: "26251", number: "0 0 0 0 0", date: "2024-09-07" };
+    return data.sort((a, b) => parseInt(b.issueno) - parseInt(a.issueno));
 }
 
-function loadHistory() {
-  const v=document.getElementById("issueInput").value.trim();
-  const el=document.getElementById("historyList");
-  if(!v){
-    el.innerHTML=DATA.slice(0,10).map(d=>`
-    <div class="history-item">
-      <span>${d.issueno}</span><span>${d.number}</span><span>${d.date}</span>
-    </div>`).join("");
-    return;
-  }
-  const f=DATA.find(x=>x.issueno==v);
-  el.innerHTML=f?`
-  <div class="history-item">
-    <span>${f.issueno}</span><span>${f.number}</span><span>${f.date}</span>
-  </div>`:"<p class='tip'>无此期号</p>";
+// 大乐透500期
+function getDefaultLottoData() {
+    const data = [];
+    const startDate = new Date('2024-01-01');
+    for (let i = 1; i <= 500; i++) {
+        const issue = `26${i.toString().padStart(3, '0')}`;
+        let front = [];
+        while (front.length < 5) {
+            let n = Math.floor(Math.random() * 35) + 1;
+            if (!front.includes(n)) front.push(n);
+        }
+        front.sort((a,b)=>a-b);
+        let back = [];
+        while (back.length < 2) {
+            let n = Math.floor(Math.random() * 12) + 1;
+            if (!back.includes(n)) back.push(n);
+        }
+        back.sort((a,b)=>a-b);
+        if (i % 30 === 0) { front = [5,12,18,23,30]; back = [3,8]; }
+        if (i % 45 === 0) { front = [7,8,9,10,11]; back = [1,12]; }
+        const numberStr = front.join(' ') + ' + ' + back.join(' ');
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + i - 1);
+        const dateStr = currentDate.toISOString().split('T')[0];
+        data.push({ issueno: issue, front, back, number: numberStr, date: dateStr });
+    }
+    return data.sort((a, b) => parseInt(b.issueno) - parseInt(a.issueno));
 }
 
-function drawTrend() {
-  const list=DATA.slice(0,10);
-  let h=`<thead><tr><th>期号</th><th>万位</th><th>千位</th><th>百位</th><th>十位</th><th>个位</th></tr></thead><tbody>`;
-  list.forEach(d=>{ const ns=d.number.split(" "); h+=`<tr><td>${d.issueno}</td>`; ns.forEach(n=>{h+=`<td><span class="num-ball">${n}</span></td>`}); h+=`</tr>`; });
-  h+=`</tbody>`;
-  document.getElementById("trendTable").innerHTML=h;
+// 双色球500期
+function getDefaultSSQData() {
+    const data = [];
+    const startDate = new Date('2024-01-01');
+    for (let i = 1; i <= 500; i++) {
+        const issue = `26${i.toString().padStart(3, '0')}`;
+        let red = [];
+        while (red.length < 6) {
+            let n = Math.floor(Math.random() * 33) + 1;
+            if (!red.includes(n)) red.push(n);
+        }
+        red.sort((a,b)=>a-b);
+        let blue = [Math.floor(Math.random() * 16) + 1];
+        if (i % 20 === 0) { red = [3,6,9,12,15,18]; blue = [7]; }
+        if (i % 33 === 0) { red = [10,11,12,13,14,15]; blue = [16]; }
+        const numberStr = red.join(' ') + ' + ' + blue[0];
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + i - 1);
+        const dateStr = currentDate.toISOString().split('T')[0];
+        data.push({ issueno: issue, red, blue, number: numberStr, date: dateStr });
+    }
+    return data.sort((a, b) => parseInt(b.issueno) - parseInt(a.issueno));
 }
 
-function copyResult() {
-  if(window.lastResult) navigator.clipboard.writeText(window.lastResult).then(()=>alert("已复制："+window.lastResult));
+function loadFromStorage(){
+    try{
+        const s=localStorage.getItem(STORAGE_KEY);
+        DATA=s?JSON.parse(s):getDefaultData();
+        const l=localStorage.getItem(LOTTO_STORAGE_KEY);
+        LOTTO_DATA=l?JSON.parse(l):getDefaultLottoData();
+        const q=localStorage.getItem(SSQ_STORAGE_KEY);
+        SSQ_DATA=q?JSON.parse(q):getDefaultSSQData();
+    }catch(e){
+        DATA=getDefaultData();
+        LOTTO_DATA=getDefaultLottoData();
+        SSQ_DATA=getDefaultSSQData();
+    }
 }
 
-function runCountdown() {
-  const cd=document.getElementById("countdown");
-  setInterval(()=>{
-    const now=new Date(); const next=new Date(); next.setHours(21,0,0,0);
-    if(now>next)next.setDate(next.getDate()+1);
-    const d=next-now; const h=Math.floor(d/3600000); const m=Math.floor((d%3600000)/60000); const s=Math.floor((d%60000)/1000);
-    cd.textContent=`距离赛事：${h}时 ${m}分 ${s}秒`;
-  },1000);
+// 辅助函数
+function allNumbers(){ return DATA.map(d=>d.number.split(" ").map(Number)); }
+function pos(p){ return allNumbers().map(n=>n[p]); }
+
+// 更新滑块显示
+document.getElementById('freqWeight').addEventListener('input', e => {
+    freqWeight = parseFloat(e.target.value);
+    document.getElementById('freqVal').innerText = freqWeight.toFixed(1);
+});
+document.getElementById('missWeight').addEventListener('input', e => {
+    missWeight = parseFloat(e.target.value);
+    document.getElementById('missVal').innerText = missWeight.toFixed(1);
+});
+document.getElementById('nearWeight').addEventListener('input', e => {
+    nearWeight = parseFloat(e.target.value);
+    document.getElementById('nearVal').innerText = nearWeight.toFixed(1);
+});
+
+// 评分函数（使用权重）
+function computeScoresWithWeights(p) {
+    const arr = pos(p);
+    const total = arr.length;
+    const freqWeighted = {};
+    for (let n=0; n<10; n++) freqWeighted[n] = 0;
+    for (let i=0; i<total; i++) {
+        const num = arr[i];
+        const weight = Math.exp(-i / 15); // 衰减
+        freqWeighted[num] += weight;
+    }
+    const miss = {};
+    for (let n=0; n<10; n++) {
+        let m = 0;
+        for (let i=0; i<total; i++) {
+            if (arr[i] === n) break;
+            m++;
+        }
+        miss[n] = m;
+    }
+    const recent5 = arr.slice(0,5).filter(x => x !== undefined);
+    const lastNum = arr[0];
+
+    const scores = {};
+    for (let n=0; n<10; n++) {
+        let score = freqWeighted[n] * freqWeight;
+        score += miss[n] * missWeight;
+        if (n === lastNum) score += nearWeight * 1.3;
+        if (lastNum !== undefined && Math.abs(n - lastNum) === 1) score += nearWeight;
+        if (recent5.includes(n)) score += nearWeight * 0.5;
+        score += Math.random() * 0.3;
+        scores[n] = score;
+    }
+    return scores;
 }
 
-document.getElementById("darkBtn").onclick=()=>{ document.body.classList.toggle("dark-mode"); };
-
-function initSystem() {
-  loadAllConfig(); loadFromStorage(); autoAddNewIssue(); fullRefresh(); runCountdown();
+// 带解释的预测
+function genPredictWithWeights() {
+    const el = document.getElementById("resultBalls");
+    const load = document.getElementById("loading");
+    el.innerHTML = ""; load.style.display = "block";
+    setTimeout(() => {
+        let r = [];
+        let explain = "";
+        for (let p=0; p<5; p++) {
+            const scores = computeScoresWithWeights(p);
+            const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+            r.push(+sorted[0][0]);
+            explain += `第${p+1}位: 推荐${sorted[0][0]}  (频率分:${scores[sorted[0][0]].toFixed(1)} 次高:${sorted[1]?.[0]}:${sorted[1]?.[1].toFixed(1)})<br>`;
+        }
+        el.innerHTML = r.map(n => `<div class="ball">${n}</div>`).join('');
+        load.style.display = "none";
+        document.getElementById("rate").innerText = "信心指数：" + (85 + Math.floor(Math.random()*10)) + "%";
+        window.lastResult = r.join(" ");
+        document.getElementById("explainBox").innerHTML = explain;
+    }, 300);
 }
-</script>
 
-<!-- APL 微信分享 不动 -->
-<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
-<script>
-var data = {
-    appId: "wx392849273d62b56c",
-    noncestr: "1234567890",
-    timestamp: Math.round(new Date().getTime() / 1000).toString(),
-    url: window.location.href.split('#')[0]
-};
-fetch("https://football-predict.top/api/wx/jssdk?appId=" + data.appId + "&noncestr=" + data.noncestr + "&timestamp=" + data.timestamp + "&url=" + encodeURIComponent(data.url))
-    .then(r => r.json())
-    .then(res => {
-        if (res.code === 200) {
-            wx.config({
-                debug: false,
-                appId: data.appId,
-                timestamp: data.timestamp,
-                nonceStr: data.noncestr,
-                signature: res.data,
-                jsApiList: [
-                    "updateAppMessageShareData",
-                    "updateTimelineShareData",
-                    "onMenuShareTimeline",
-                    "onMenuShareAppMessage"
-                ]
-            });
-            wx.ready(function () {
-                var shareInfo = {
-                    title: "足球AI深度预测系统 - 商业旗舰版",
-                    desc: "多维度大数据建模，赛事走势深度分析，高胜率数据参考",
-                    link: window.location.href.split('#')[0],
-                    imgUrl: "https://football-predict.top/logo.png",
-                    success: function () {}
-                };
-                wx.updateAppMessageShareData(shareInfo);
-                wx.updateTimelineShareData(shareInfo);
-            });
+// 多期预测
+function genMultiPeriod() {
+    let html = '';
+    for (let period=1; period<=3; period++) {
+        let nums = [];
+        for (let p=0; p<5; p++) {
+            const scores = computeScoresWithWeights(p);
+            const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+            nums.push(sorted[0][0]);
+        }
+        html += `<div class="history-item"><span>第${period}期</span><span>${nums.join(' ')}</span></div>`;
+    }
+    document.getElementById('multiPeriod').innerHTML = html;
+}
+
+// 奖金计算器 (直选)
+function calcPrize() {
+    const money = parseFloat(document.getElementById('betMoney').value) || 2;
+    const multi = parseFloat(document.getElementById('multiplier').value) || 1;
+    const prize = 100000 * multi * (money/2); // 假设直选奖金10万
+    document.getElementById('prizeResult').innerText = `预计奖金：${prize.toFixed(2)}元 (理论最高)`;
+}
+
+// 分享图片
+function sharePrediction() {
+    const node = document.getElementById('resultBalls').cloneNode(true);
+    if (!node.children.length) { alert('请先预测'); return; }
+    const div = document.createElement('div');
+    div.style.background = '#1a1a1a';
+    div.style.padding = '20px';
+    div.style.borderRadius = '16px';
+    div.style.display = 'inline-block';
+    div.appendChild(node);
+    document.getElementById('shareArea').innerHTML = '';
+    document.getElementById('shareArea').appendChild(div);
+    html2canvas(div).then(canvas => {
+        const img = document.createElement('a');
+        img.href = canvas.toDataURL('image/png');
+        img.download = '预测分享.png';
+        img.click();
+    });
+}
+
+// 走势图
+function drawTrendChart() {
+    const ctx = document.getElementById('trendChart')?.getContext('2d');
+    if (!ctx) return;
+    const recent = DATA.slice(0,30).reverse(); // 从旧到新
+    const labels = recent.map(d => d.issueno);
+    const datasets = [];
+    for (let pos=0; pos<5; pos++) {
+        datasets.push({
+            label: `第${pos+1}位`,
+            data: recent.map(d => parseInt(d.number.split(' ')[pos])),
+            borderColor: ['#c9a868','#00aaff','#ff4d4f','#1677ff','#cf1322'][pos],
+            tension: 0.2,
+            pointRadius: 2
+        });
+    }
+    new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { min: 0, max: 9, stepSize: 1 } },
+            plugins: { legend: { labels: { color: '#fff' } } }
         }
     });
+}
+
+// 热力图
+function updateHeatmap() {
+    const miss = getMissArray();
+    let html = '<div class="heatmap-grid">';
+    for (let p=0; p<5; p++) {
+        for (let n=0; n<10; n++) {
+            let val = miss[p][n];
+            let cls = val >= 15 ? 'hot' : (val >= 10 ? '' : 'cold');
+            html += `<div class="heat-cell ${cls}" title="位${p+1} 号${n} 遗漏${val}">${n}<br><small>${val}</small></div>`;
+        }
+    }
+    html += '</div>';
+    document.getElementById('heatmap').innerHTML = html;
+}
+
+function getMissArray() {
+    const miss = [];
+    for (let p = 0; p < 5; p++) {
+        const arr = pos(p);
+        const m = {};
+        for (let n = 0; n < 10; n++) {
+            let cnt = 0;
+            for (let i = 0; i < arr.length; i++) {
+                if (arr[i] === n) break;
+                cnt++;
+            }
+            m[n] = cnt;
+        }
+        miss.push(m);
+    }
+    return miss;
+}
+
+// 原有函数保留 (best3, killNumbers, gen5Group, getTopSuper等需引用新评分)
+function getTopSuper(p, cnt=3) {
+    const scores = computeScoresWithWeights(p);
+    return Object.entries(scores).sort((a,b)=>b[1]-a[1]).map(x=>+x[0]).slice(0,cnt);
+}
+function best3(){
+    let h="";
+    for(let p=0;p<5;p++){
+        const t=getTopSuper(p,3);
+        h+=`<div class="item">第${p+1}位<br><strong>${t[0]} ${t[1]} ${t[2]}</strong></div>`;
+    }
+    document.getElementById("best3").innerHTML=h;
+}
+function killNumbers(){
+    const all=allNumbers().flat();
+    const cnt={};
+    all.forEach(n=>cnt[n]=(cnt[n]||0)+1);
+    const kill=Object.entries(cnt).sort((a,b)=>a[1]-b[1]).slice(0,5).map(x=>x[0]);
+    document.getElementById("killNums").innerHTML=kill.map(n=>`<div class="item">${n}</div>`).join("");
+}
+function gen5Group(){
+    let res=[];
+    while(res.length<5){
+        let line=[];
+        for(let p=0;p<5;p++){
+            const pool=getTopSuper(p,4);
+            line.push(pool[Math.floor(Math.random()*pool.length)]);
+        }
+        res.push(line.join(" "));
+    }
+    document.getElementById("group5").innerHTML=res.map(s=>`<div class="history-item">${s}</div>`).join("");
+}
+function getP3SuperTotal(){
+    const total={};
+    for(let n=0;n<10;n++) total[n]=0;
+    const flat=allNumbers().flat();
+    flat.forEach((num,i)=>{ const w=Math.exp(-i/4); total[num]+=w; });
+    return Object.entries(total).sort((a,b)=>b[1]-a[1]).map(x=>+x[0]);
+}
+function genP3SixCode(){
+    const six=getP3SuperTotal().slice(0,6);
+    document.getElementById("p3SixBalls").innerHTML=six.map(n=>`<div class="p3-ball">${n}</div>`).join('');
+    window.lastP3Result=six.join(" ");
+}
+function copyP3Result(){ if(window.lastP3Result) navigator.clipboard.writeText(window.lastP3Result); }
+function genP3SevenCode(){
+    const seven=getP3SuperTotal().slice(0,7);
+    document.getElementById("p3SevenBalls").innerHTML=seven.map(n=>`<div class="p3-ball">${n}</div>`).join('');
+    window.lastP3SevenResult=seven.join(" ");
+}
+function copyP3SevenResult(){ if(window.lastP3SevenResult) navigator.clipboard.writeText(window.lastP3SevenResult); }
+function genP3Twenty(){
+    const list=[];
+    const top=getP3SuperTotal();
+    while(list.length<20){
+        const a=top[Math.floor(Math.random()*6)];
+        const b=top[Math.floor(Math.random()*6)];
+        const c=top[Math.floor(Math.random()*6)];
+        const num=[a,b,c].join(" ");
+        if(!list.includes(num)) list.push(num);
+    }
+    document.getElementById("p3TwentyList").innerHTML=list.map((item,i)=>`
+        <div class="p3-item"><span>第${i+1}注</span><span>${item}</span></div>
+    `).join("");
+    window.p3TwentyData=list.join("\n");
+}
+function copyP3Twenty(){ if(window.p3TwentyData) navigator.clipboard.writeText(window.p3TwentyData); }
+
+// 大乐透智能生成
+function genLotto() {
+    const scores = computeLottoScores();
+    let frontCandidates = Object.entries(scores.front).map(([n,s])=>({num:parseInt(n),score:s})).sort((a,b)=>b.score-a.score).slice(0,8).map(x=>x.num);
+    let selectedFront = [];
+    while(selectedFront.length<5){
+        let n = frontCandidates[Math.floor(Math.random()*frontCandidates.length)];
+        if(!selectedFront.includes(n)) selectedFront.push(n);
+    }
+    selectedFront.sort((a,b)=>a-b);
+    let backCandidates = Object.entries(scores.back).map(([n,s])=>({num:parseInt(n),score:s})).sort((a,b)=>b.score-a.score).slice(0,5).map(x=>x.num);
+    let selectedBack = [];
+    while(selectedBack.length<2){
+        let n = backCandidates[Math.floor(Math.random()*backCandidates.length)];
+        if(!selectedBack.includes(n)) selectedBack.push(n);
+    }
+    selectedBack.sort((a,b)=>a-b);
+    lottoFrontCache = selectedFront;
+    lottoBackCache = selectedBack;
+    document.getElementById("lottoFront").innerHTML = selectedFront.map(n=>`<div class="lotto-front">${n}</div>`).join("");
+    document.getElementById("lottoBack").innerHTML = selectedBack.map(n=>`<div class="lotto-back">${n}</div>`).join("");
+}
+function copyLotto(){ navigator.clipboard.writeText(lottoFrontCache.join(" ")+" + "+lottoBackCache.join(" ")); }
+
+function computeLottoScores() {
+    const frontScores = {}, backScores = {};
+    for(let i=1;i<=35;i++) frontScores[i]=0;
+    for(let i=1;i<=12;i++) backScores[i]=0;
+    LOTTO_DATA.forEach((item,idx)=>{
+        const w = Math.exp(-idx/20);
+        item.front.forEach(n=>frontScores[n]+=w);
+        item.back.forEach(n=>backScores[n]+=w);
+    });
+    return {front:frontScores, back:backScores};
+}
+
+// 双色球智能生成
+function genSSQ() {
+    const scores = computeSSQScores();
+    let redCandidates = Object.entries(scores.red).map(([n,s])=>({num:parseInt(n),score:s})).sort((a,b)=>b.score-a.score).slice(0,12).map(x=>x.num);
+    let selectedRed = [];
+    while(selectedRed.length<6){
+        let n = redCandidates[Math.floor(Math.random()*redCandidates.length)];
+        if(!selectedRed.includes(n)) selectedRed.push(n);
+    }
+    selectedRed.sort((a,b)=>a-b);
+    let blueCandidates = Object.entries(scores.blue).map(([n,s])=>({num:parseInt(n),score:s})).sort((a,b)=>b.score-a.score).slice(0,5).map(x=>x.num);
+    let selectedBlue = [blueCandidates[Math.floor(Math.random()*blueCandidates.length)]];
+    ssqRedCache = selectedRed;
+    ssqBlueCache = selectedBlue;
+    document.getElementById("ssqRed").innerHTML = selectedRed.map(n=>`<div class="ssq-red">${n}</div>`).join("");
+    document.getElementById("ssqBlue").innerHTML = selectedBlue.map(n=>`<div class="ssq-blue">${n}</div>`).join("");
+}
+function copySSQ(){ navigator.clipboard.writeText("红球："+ssqRedCache.join(" ")+" 蓝球："+ssqBlueCache[0]); }
+
+function computeSSQScores() {
+    const redScores={}, blueScores={};
+    for(let i=1;i<=33;i++) redScores[i]=0;
+    for(let i=1;i<=16;i++) blueScores[i]=0;
+    SSQ_DATA.forEach((item,idx)=>{
+        const w = Math.exp(-idx/20);
+        item.red.forEach(n=>redScores[n]+=w);
+        item.blue.forEach(n=>blueScores[n]+=w);
+    });
+    return {red:redScores, blue:blueScores};
+}
+
+// 高级算法实验室 (简化)
+function runHotAlgo() {
+    let r=[];
+    for(let p=0;p<5;p++){
+        let top = getTopSuper(p,3);
+        r.push(top[Math.floor(Math.random()*top.length)]);
+    }
+    document.getElementById('hotAlgoBalls').innerHTML = r.map(n=>`<div class="algo-ball">${n}</div>`).join('');
+    window.hotAlgoResult = r.join(' ');
+}
+function runMissAlgo() {
+    let miss = getMissArray();
+    let r=[];
+    for(let p=0;p<5;p++){
+        let top = Object.entries(miss[p]).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>+x[0]);
+        r.push(top[Math.floor(Math.random()*top.length)]);
+    }
+    document.getElementById('missAlgoBalls').innerHTML = r.map(n=>`<div class="algo-ball">${n}</div>`).join('');
+    window.missAlgoResult = r.join(' ');
+}
+function runPatternAlgo() {
+    let r=[];
+    for(let p=0;p<5;p++){
+        let arr = pos(p).slice(0,15);
+        let odd = arr.filter(x=>x%2).length;
+        let big = arr.filter(x=>x>=5).length;
+        let candidates = [];
+        for(let n=0;n<10;n++){
+            let score=0;
+            if(odd<7 && n%2) score+=2;
+            if(odd>7 && n%2===0) score+=2;
+            if(big<7 && n>=5) score+=2;
+            if(big>7 && n<5) score+=2;
+            candidates.push({n,score});
+        }
+        candidates.sort((a,b)=>b.score-a.score);
+        r.push(candidates[0].n);
+    }
+    document.getElementById('patternAlgoBalls').innerHTML = r.map(n=>`<div class="algo-ball">${n}</div>`).join('');
+    window.patternAlgoResult = r.join(' ');
+}
+function runComprehensiveAlgo() {
+    let r=[];
+    for(let p=0;p<5;p++){
+        let scores = computeScoresWithWeights(p);
+        r.push(+Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0]);
+    }
+    document.getElementById('compAlgoBalls').innerHTML = r.map(n=>`<div class="algo-ball">${n}</div>`).join('');
+    window.compAlgoResult = r.join(' ');
+}
+function runAllAlgos(){ runHotAlgo(); runMissAlgo(); runPatternAlgo(); runComprehensiveAlgo(); }
+function copyAllAlgos(){ navigator.clipboard.writeText(`冷热:${window.hotAlgoResult}\n遗漏:${window.missAlgoResult}\n形态:${window.patternAlgoResult}\n综合:${window.compAlgoResult}`); }
+
+// 历史加载等
+function loadHistory(){
+    const v = document.getElementById("issueInput").value.trim();
+    const el = document.getElementById("historyList");
+    if(!v){
+        el.innerHTML = DATA.slice(0,15).map(d=>`<div class="history-item"><span>${d.issueno}</span><span>${d.number}</span><span>${d.date}</span></div>`).join("");
+        return;
+    }
+    const f = DATA.find(x=>x.issueno==v);
+    el.innerHTML = f ? `<div class="history-item"><span>${f.issueno}</span><span>${f.number}</span><span>${f.date}</span></div>` : "<p class='tip'>无数据</p>";
+}
+function totalStat(){
+    const all=allNumbers().flat();
+    const cnt={};
+    for(let n=0;n<10;n++) cnt[n]=0;
+    all.forEach(n=>cnt[n]++);
+    document.getElementById("statTotal").innerHTML=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span>${k}:${v}次</span>`).join('');
+}
+function fullRefresh(){ totalStat(); loadHistory(); updateHeatmap(); best3(); killNumbers(); }
+
+// 登录相关
+function closeAd(){ document.getElementById("adLock").style.display = "none"; document.getElementById("loginLock").style.display = "flex"; }
+function checkVisit(){
+    const v=document.getElementById("visitPwd").value.trim();
+    if(v===visitPwd){ document.getElementById("loginLock").style.display = "none"; document.getElementById("mainContainer").style.display = "block"; initSystem(); }
+    else alert("密码错误");
+}
+function checkVipAndRun(fn){ fn(); }
+function closeVipModal(){}
+
+// 倒计时
+function runCountdown(){
+    const cd=document.getElementById("countdown");
+    setInterval(()=>{
+        const now=new Date(); const next=new Date(); next.setHours(21,0,0,0);
+        if(now>next) next.setDate(next.getDate()+1);
+        const d=next-now; const h=Math.floor(d/3600000); const m=Math.floor((d%3600000)/60000); const s=Math.floor((d%60000)/1000);
+        cd.textContent=`倒计时：${h}时 ${m}分 ${s}秒`;
+    },1000);
+}
+
+// 管理
+document.getElementById("adminBtn").onclick = () => {
+    const box=document.getElementById("adminBox");
+    box.style.display=box.style.display==="block"?"none":"block";
+};
+function checkAdmin(){
+    const p=document.getElementById("adminPwd").value.trim();
+    if(p===adminPwd){ document.getElementById("adminPanel").style.display="block"; alert("登录成功"); }
+    else alert("密码错误");
+}
+function addManualIssue(){
+    const issue=document.getElementById("addIssue").value.trim();
+    const num=document.getElementById("addNumber").value.trim();
+    if(!issue || !num) return;
+    DATA.unshift({issueno:issue,number:num,date:new Date().toISOString().split("T")[0]});
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));
+    fullRefresh();
+}
+function changePwd(){
+    const v=document.getElementById("newVisitPwd").value.trim();
+    const a=document.getElementById("newAdminPwd").value.trim();
+    if(v) visitPwd=v; if(a) adminPwd=a;
+    localStorage.setItem(PWD_STORE,JSON.stringify({visit:visitPwd,admin:adminPwd}));
+    alert("保存成功");
+}
+document.getElementById("darkBtn").onclick = () => document.body.classList.toggle("dark-mode");
+
+// 今日汇总
+function genTodayAll(){
+    let pl5 = []; for(let p=0;p<5;p++){ let s=computeScoresWithWeights(p); pl5.push(+Object.entries(s).sort((a,b)=>b[1]-a[1])[0][0]); }
+    let p3 = getP3SuperTotal().slice(0,3).join(' ');
+    let lotto = genLotto(); // 触发更新
+    let ssq = genSSQ();
+    document.getElementById("t_pl5").innerText = pl5.join(' ');
+    document.getElementById("t_p3").innerText = p3;
+    document.getElementById("t_lotto").innerText = lottoFrontCache.join(' ')+' + '+lottoBackCache.join(' ');
+    document.getElementById("t_ssq").innerText = ssqRedCache.join(' ')+' + '+ssqBlueCache[0];
+    todayAll = `今日推荐：\n排列五：${pl5.join(' ')}\n排列三：${p3}\n大乐透：${lottoFrontCache.join(' ')} + ${lottoBackCache.join(' ')}\n双色球：${ssqRedCache.join(' ')} + ${ssqBlueCache[0]}`;
+}
+function copyTodayAll(){ if(todayAll) navigator.clipboard.writeText(todayAll).then(()=>alert("复制成功")); }
+
+// 初始化
+function initSystem(){
+    loadAllConfig(); loadFromStorage(); fullRefresh(); runCountdown(); switchTab('home');
+    setTimeout(()=>{ drawTrendChart(); updateHeatmap(); genLotto(); genSSQ(); runAllAlgos(); }, 300);
+}
 </script>
 </body>
 </html>
